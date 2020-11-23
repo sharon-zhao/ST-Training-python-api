@@ -7,67 +7,67 @@ from django.shortcuts import get_object_or_404
 from django.contrib.auth import get_user, authenticate, login, logout
 from django.middleware.csrf import get_token
 
-from ..models.mango import Mango
-from ..serializers import MangoSerializer, UserSerializer
+from ..models.application import Application
+from ..serializers import ApplicationSerializer, UserSerializer
 
 # Create your views here.
-class Mangos(generics.ListCreateAPIView):
+class Applications(generics.ListCreateAPIView):
     permission_classes=(IsAuthenticated,)
     def get(self, request):
         """Index request"""
-        # mangos = Mango.objects.all()
-        mangos = Mango.objects.filter(owner=request.user.id)
-        data = MangoSerializer(mangos, many=True).data
+        # applications = Application.objects.all()
+        applications = Application.objects.filter(owner=request.user.id)
+        data = ApplicationSerializer(applications, many=True).data
         return Response(data)
 
-    serializer_class = MangoSerializer
+    serializer_class = ApplicationSerializer
     def post(self, request):
         """Create request"""
         # Add user to request object
-        request.data['mango']['owner'] = request.user.id
-        # Serialize/create mango
-        mango = MangoSerializer(data=request.data['mango'])
-        if mango.is_valid():
-            m = mango.save()
-            return Response(mango.data, status=status.HTTP_201_CREATED)
+        request.data['application']['owner'] = request.user.id
+        # Serialize/create application
+        application = ApplicationSerializer(data=request.data['application'])
+        if application.is_valid():
+            m = application.save()
+            return Response(application.data, status=status.HTTP_201_CREATED)
         else:
-            return Response(mango.errors, status=status.HTTP_400_BAD_REQUEST)
+            return Response(application.errors, status=status.HTTP_400_BAD_REQUEST)
 
-class MangoDetail(generics.RetrieveUpdateDestroyAPIView):
+class ApplicationDetail(generics.RetrieveUpdateDestroyAPIView):
     permission_classes=(IsAuthenticated,)
     def get(self, request, pk):
         """Show request"""
-        mango = get_object_or_404(Mango, pk=pk)
-        data = MangoSerializer(mango).data
-        # Only want to show owned mangos?
+        application = get_object_or_404(Application, pk=pk)
+        data = ApplicationSerializer(application).data
+        # Only want to show owned applications?
         # if not request.user.id == data['owner']:
         #     raise PermissionDenied('Unauthorized, you do not own this mango')
         return Response(data)
 
     def delete(self, request, pk):
         """Delete request"""
-        mango = get_object_or_404(Mango, pk=pk)
-        if not request.user.id == mango['owner']:
+        application = get_object_or_404(Application, pk=pk)
+        if not request.user.id == application['owner']:
             raise PermissionDenied('Unauthorized, you do not own this mango')
-        mango.delete()
+        application.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
     def partial_update(self, request, pk):
         """Update Request"""
         # Remove owner from request object
-        if request.data['mango'].get('owner', False):
-            del request.data['mango']['owner']
+        if request.data['application'].get('owner', False):
+            del request.data['application']['owner']
 
-        # Locate Mango
-        mango = get_object_or_404(Mango, pk=pk)
+        # Locate Application
+        application = get_object_or_404(Application, pk=pk)
         # Check if user is  the same
         if not request.user.id == mango['owner']:
-            raise PermissionDenied('Unauthorized, you do not own this mango')
+            raise PermissionDenied('Unauthorized, you do not own this application')
 
         # Add owner to data object now that we know this user owns the resource
-        request.data['mango']['owner'] = request.user.id
+        request.data['application']['owner'] = request.user.id
         # Validate updates with serializer
-        ms = MangoSerializer(mango, data=request.data['mango'])
+        ms = ApplicationSerializer(application, data=request.data['application'])
         if ms.is_valid():
             ms.save()
             print(ms)

@@ -1,2 +1,2 @@
-from .mango import Mango
+from .application import Application
 from .user import User
