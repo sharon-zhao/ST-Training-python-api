@@ -13,9 +13,10 @@ class ApplicationSerializer(serializers.ModelSerializer):
 
 
 class CourseDisplaySerializer(serializers.ModelSerializer):
-  class Meta:
-    model = CourseDisplay
-    fields = ('id', 'title', 'imageurl', 'discreption', 'link')
+    class Meta:
+        model = CourseDisplay
+        fields = ('id', 'title', 'image_url', 'description', 'link')
+
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:

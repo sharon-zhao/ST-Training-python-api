@@ -15,16 +15,17 @@ class Application(models.Model):
       on_delete=models.CASCADE
   )
 
-  def __str__(self):
-    # This must return a string
-    return f"My name is '{self.name}' this is my story {self.story}. My email is {self.email} and phone number is {self.phone}."
+  # def __str__(self):
+  #   # This must return a string
+  #   return f"My name is '{self.name}' this is my story {self.story}. My email is {self.email} and phone number is {self.phone}."
 
   def as_dict(self):
-    """Returns dictionary version of Mango models"""
+    """Returns dictionary version of Application models"""
     return {
         'id': self.id,
         'name': self.name,
         'story': self.story,
         'email': self.email,
-        'phone': self.phone
+        'phone': self.phone,
+        'owner': self.owner
     }

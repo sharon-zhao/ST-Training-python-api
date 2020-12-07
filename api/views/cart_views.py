@@ -7,7 +7,7 @@ from django.shortcuts import get_object_or_404
 from django.contrib.auth import get_user, authenticate, login, logout
 from django.middleware.csrf import get_token
 
-from ..models.application import Application
+from ..models.carts import Cart
 from ..serializers import ApplicationSerializer, UserSerializer
 
 # Create your views here.

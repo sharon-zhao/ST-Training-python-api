@@ -9,16 +9,19 @@ from django.contrib.auth import get_user, authenticate, login, logout
 from ..serializers import UserSerializer, ChangePasswordSerializer
 from ..models.user import User
 
+
 class SignUp(generics.CreateAPIView):
     authentication_classes = ()
     permission_classes = ()
     def post(self, request):
+
         user = UserSerializer(data=request.data['credentials'])
         if user.is_valid():
             u = user.save()
             return Response(user.data, status=status.HTTP_201_CREATED)
         else:
             return Response(user.errors, status=status.HTTP_400_BAD_REQUEST)
+
 
 class SignIn(generics.CreateAPIView):
     authentication_classes = ()
@@ -44,25 +47,32 @@ class SignIn(generics.CreateAPIView):
         else:
             return Response({ 'msg': 'The username and/or password is incorrect.'}, status=status.HTTP_422_UNPROCESSABLE_ENTITY)
 
+
 class SignOut(generics.DestroyAPIView):
     permission_classes=(IsAuthenticated,)
+    print('--------------------------')
+
     def delete(self, request):
+        print('sign out')
         # Remove this token from the user
         request.user.delete_token(request.user)
         # Logout will remove all session data
         logout(request)
         return Response({}, status=status.HTTP_200_OK)
 
-class ChangePassword(generics.UpdateAPIView):
-    permission_classes=(IsAuthenticated,)
 
+class ChangePassword(generics.UpdateAPIView):
+    permission_classes = (IsAuthenticated,)
+    print('--------------------------')
     def partial_update(self, request):
+
         user = request.user
+        print(request)
         serializer = ChangePasswordSerializer(data=request.data['passwords'])
         if serializer.is_valid():
             print(serializer)
             if not user.check_password(serializer.data['old']):
-                return Response({ 'msg': 'Wrong password'}, status=status.HTTP_422_UNPROCESSABLE_ENTITY)
+                return Response({'msg': 'Wrong password'}, status=status.HTTP_422_UNPROCESSABLE_ENTITY)
             # set_password will also hash the password
             user.set_password(serializer.data['new'])
             user.save()

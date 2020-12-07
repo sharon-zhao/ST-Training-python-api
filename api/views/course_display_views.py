@@ -11,33 +11,48 @@ from ..models.course_display import CourseDisplay
 from ..serializers import CourseDisplaySerializer
 
 # Create your views here.
-class CourseDisplays(generics.ListCreateAPIView):
+
+
+class CourseDisplays(APIView):
     permission_classes = ()
+
     def get(self, request):
         """Index request"""
-        coursedisplays = CourseDisplay.objects.all()
-        data = CourseDisplaySerializer(coursedisplays, many=True).data
+        course_displays = CourseDisplay.objects.all()
+        data = CourseDisplaySerializer(course_displays, many=True).data
         return Response(data)
 
     serializer_class = CourseDisplaySerializer
+
     def post(self, request):
         """Create request"""
-        # Serialize/create application
-        coursedisplay = CourseDisplaySerializer(data=request.data['coursedisplay'])
-        if coursedisplay.is_valid():
-            m = coursedisplay.save()
-            return Response(coursedisplay.data, status=status.HTTP_201_CREATED)
-        else:
-            return Response(coursedisplay.errors, status=status.HTTP_400_BAD_REQUEST)
+        print('------------------------------------')
+        print(request.data)
+        course_display = CourseDisplaySerializer(data=request.data['course_display'])
 
-class CourseDisplayDetail(generics.RetrieveUpdateDestroyAPIView):
-    permission_classes=()
+        if course_display.is_valid():
+            m = course_display.save()
+            return Response(course_display.data, status=status.HTTP_201_CREATED)
+        else:
+            return Response(course_display.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class CourseDisplayDetail(APIView):
+
+    permission_classes = ()
+
     def get(self, request, pk):
         """Show request"""
-        coursedisplay = get_object_or_404(CourseDisplay, pk=pk)
-        data = CourseDisplaySerializer(coursedisplay).data
+        course_display = get_object_or_404(CourseDisplay, pk=pk)
+        data = CourseDisplaySerializer(course_display).data
         # Only want to show owned applications?
         # if not request.user.id == data['owner']:
         #     raise PermissionDenied('Unauthorized, you do not own this mango')
         return Response(data)
 
+    def delete(self, request, pk):
+
+        """Delete request"""
+        course_display = get_object_or_404(CourseDisplay, pk=pk)
+        course_display.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
